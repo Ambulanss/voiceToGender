@@ -1,6 +1,12 @@
 
+import sys
+import scipy
+
 def main():
-    pass
+    path = sys.argv[0]
+    
+    print('K')
+    return 0
 
 
 
