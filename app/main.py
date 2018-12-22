@@ -1,15 +1,12 @@
 
 import sys
-import scipy
+import scipy.io.wavfile as wvf
 
 def main():
-    path = sys.argv[0]
+    path = sys.argv[1]
+    sampling_rate, data = wvf.read(path)
     
-    print('K')
-    return 0
-
-
-
+    return
 
 
 
