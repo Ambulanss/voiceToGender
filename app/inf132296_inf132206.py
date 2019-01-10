@@ -13,8 +13,6 @@ def parabolic(f, x):
     return (xv, yv)
 
 
-
-#This function preprocesses the given signal to be a 1-dimensional array of floats, normalized
 def prepare(fs, signal):
     if(len(signal.shape) > 1):
         signal = signal[:, 0]
@@ -23,25 +21,15 @@ def prepare(fs, signal):
     return fs, signal
 
 
-def freq_from_fft(sig, fs):
-    windowed = sig * blackmanharris(len(sig))
-    f = rfft(windowed)
-    
-    i = argmax(abs(f)) # Just use this for less-accurate, naive version
-    true_i = parabolic(log(abs(f)), i)[0]
-    
-    return fs * true_i / len(windowed)
+def autocorrelation(signal, fs):
 
-
-def autocorrelation(sig, fs):
-
-    corr = fftconvolve(sig, sig[::-1], mode='full')
-    corr = corr[len(corr)//2:]
+    correlation = fftconvolve(signal, signal[::-1], mode='full')
+    correlation = correlation[len(correlation)//2:]
     
-    d = diff(corr)
+    d = diff(correlation)
     start = find(d > 0)[0]
-    peak = argmax(corr[start:]) + start
-    px, _ = parabolic(corr, peak)
+    peak = argmax(correlation[start:]) + start
+    px, _ = parabolic(correlation, peak)
     
     return fs / px
 
@@ -50,22 +38,16 @@ def main():
     if not sys.warnoptions:
         warnings.simplefilter("ignore")
     
-    ok_counter = 0
     for path in sys.argv[1:]:
         try:
             fs , wf = wavfile.read(path)
             fs, signal = prepare(fs, wf)
             autocorr = autocorrelation(signal, fs)
-            ffs = freq_from_fft(signal, fs)
-
-            if(autocorr > 180 and ffs > 180):
+            if(autocorr > 180):
                 out = "K"
-            elif(autocorr > 180 and ffs < 10):
-                out = "M"
-            elif(autocorr <= 180):
-                out = "M"
             else:
-                out = "K"    
+                out = "M"  
+            print(out)
         except:
             pass
 
